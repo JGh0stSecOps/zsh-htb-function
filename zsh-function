@@ -1,0 +1,90 @@
+function htb() {
+    local RED='%F{red}'
+    local GREEN='%F{green}'
+    local NC='%f' # No Color
+    local OVPN_DIR=$HOME/.ovpn
+    local ADAPTER_FILE="$OVPN_DIR/tun_adapters.txt"
+
+    if [[ ! -f $ADAPTER_FILE ]]; then
+        touch "$ADAPTER_FILE"
+    fi
+
+    typeset -A tun_adapters
+
+    function get_tun_devices() {
+        ifconfig | grep -o 'utun[0-9]\+' | sort | uniq
+    }
+
+    function save_adapters() {
+        : > "$ADAPTER_FILE"
+        for key val in ${(kv)tun_adapters}; do
+            echo "$key $val" >> "$ADAPTER_FILE"
+        done
+    }
+
+    function load_adapters() {
+        tun_adapters=()
+        if [[ -s $ADAPTER_FILE ]]; then
+            while read -r key val; do
+                if [[ $(ifconfig | grep -c $val) -gt 0 ]]; then
+                    tun_adapters[$key]=$val
+                fi
+            done < "$ADAPTER_FILE"
+        fi
+    }
+
+    local type=$2
+    local name=$3
+    local file="${type}_${name}.ovpn"
+
+    case "$1" in
+        connect)
+            load_adapters
+            if [[ -f $OVPN_DIR/$file ]]; then
+                local before_tuns=$(get_tun_devices)
+                print -P "${GREEN}Connecting to Hack The Box $type $name...${NC}"
+                sudo openvpn --config $OVPN_DIR/$file --daemon >/dev/null 2>&1
+                sleep 5
+                local after_tuns=$(get_tun_devices)
+                local new_tun=$(comm -13 <(echo "$before_tuns") <(echo "$after_tuns"))
+                if [[ -n $new_tun ]]; then
+                    tun_adapters[$file]=$new_tun
+                    save_adapters
+                    local ip_addr=$(ifconfig $new_tun | awk '/inet / {print $2}')
+                    print -P "${GREEN}Connected on $new_tun with IP $ip_addr.${NC}"
+                else
+                    print -P "${RED}Failed to establish a tunnel interface.${NC}"
+                fi
+            else
+                print -P "${RED}Configuration file for $type $name not found.${NC}"
+            fi
+            ;;
+        disconnect)
+            load_adapters
+            if [[ -n ${tun_adapters[$file]} ]]; then
+                print -P "${RED}Disconnecting from Hack The Box $type $name...${NC}"
+                sudo pkill -f "openvpn --config $OVPN_DIR/$file"
+                unset 'tun_adapters[$file]'
+                save_adapters
+            else
+                print -P "${RED}No active connection found for $type $name.${NC}"
+            fi
+            ;;
+        status)
+            load_adapters
+            echo "VPN status:"
+            for file in ${(k)tun_adapters}; do
+                local tun=${tun_adapters[$file]}
+                if [[ -n $tun ]] && ifconfig $tun | grep inet > /dev/null 2>&1; then
+                    local ip_addr=$(ifconfig $tun | awk '/inet / {print $2}')
+                    print -P "${file%.*}: ${GREEN}Connected${NC} on $tun with IP $ip_addr"
+                else
+                    print -P "${file%.*}: ${RED}Not connected${NC}"
+                fi
+            done
+            ;;
+        *)
+            print -P "${RED}Usage: htb {connect|disconnect|status}${NC}"
+            ;;
+    esac
+}
