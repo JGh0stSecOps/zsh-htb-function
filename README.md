@@ -1,5 +1,5 @@
 # Hack The Box zsh function
-If you've interacted with the Hack The Box platform, you may find yourself accumulating a number of `ovpn` files. It can be slightly annoying to work with these and track which IP address belongs to which tunnel if you are utilizing more than one address. Additionally, if you work across platforms each platform (lab, academy, ctf) may have it's own `ovpn` file.
+If you've interacted with the Hack The Box platform, you may find yourself accumulating a number of `ovpn` files. It can be slightly annoying to work with these and track which IP address belongs to which tunnel if you are utilizing more than one address. Additionally, if you work across platforms each platform (lab, academy, ctf) may have it' own `ovpn` file.
 
 Copy the contents of `zsh-function` into your `~/.zshrc` and run `source ~/.zshrc`
 
