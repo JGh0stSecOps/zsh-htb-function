@@ -4,7 +4,7 @@ If you've interacted with the Hack The Box platform, you may find yourself accum
 Copy the contents of `zsh-function` into your `~/.zshrc` and run `source ~/.zshrc`
 
 ### Using this function
-You call the function with the syntax `htb [type] [name]`. The script checks the folder `~/.ovpn` for a matching file named `[type]_[name].ovpn`. This allows the function a lot of flexibility. Additionally, the script will create and track tunnel addresses with the file `~/.ovpn/tunnel_adapters.txt`. 
+You call the function with the syntax `htb [type] [name]`. The script checks the `~/.ovpn` directory for a matching file named `[type]_[name].ovpn`. This allows the function a lot of flexibility. Additionally, the script will create and track tunnel addresses with the file `~/.ovpn/tunnel_adapters.txt`. 
 
 ## Examples
 
