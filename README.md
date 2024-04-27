@@ -11,7 +11,7 @@ You call the function with the syntax `htb [type] [name]`. The script checks the
 ### manage-htb.sh
 You can use this simple script to add your ovpn files to the `~/.ovpn/` directory and name them appropriatly. It also adds the function to `~/.zshrc` for you and allows an overwrite in the case that I update the code. Makes it easier for you.
 
-```sh
+```console
 ❯ ./manage-htb.sh
 Enter the type of ovpn file (lab, academy, ctf):
 lab
@@ -24,7 +24,7 @@ htb function already exists in ~/.zshrc. Use --force to overwrite.
 ```
 
 ### Connect using the function
-```sh
+```console
 ❯ htb status
 VPN status:
 ❯ htb connect lab main
